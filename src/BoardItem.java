@@ -40,9 +40,7 @@ public class BoardItem {
     public String viewInfo(){
        String status = String.valueOf(this.status);
        String date = String.valueOf(this.dueDate);
-       StringBuilder inf = new StringBuilder();
-       String info = "'" +title + "', ["+ status + " | "+ date+"]";
-       return info;
+       return "'" +title + "', ["+ status + " | "+ date+"]";
     }
 }
 
