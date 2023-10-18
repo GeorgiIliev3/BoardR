@@ -1,4 +1,4 @@
 public enum Status {
-    Open, ToDo, InProgress, Done, Verified;
+    OPEN, TO_DO, IN_PROGRESS, DONE, VERIFIED;
 
 }
