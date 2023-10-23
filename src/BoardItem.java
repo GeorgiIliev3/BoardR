@@ -2,27 +2,29 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class BoardItem {
+    public static final int MIN_TITLE_LENGTH = 5;
+    public static final int MAX_TITLE_LENGTH = 30;
     private String title;
     private LocalDate dueDate;
     private Status status;
-    private ArrayList<EventLog>history;
+    protected ArrayList<EventLog>history;
 
     public BoardItem (String title, LocalDate date){
         this.title = title;
         this.dueDate = date;
-        this.status = Status.OPEN;
+        this.status = getInitialStatus();
         this.history = new ArrayList<>();
-        EventLog eventLog = new EventLog("Item created: " + viewInfo());
-        history.add(eventLog);
+        history.add(new EventLog("Item created: " + viewInfo()));
     }
     public  BoardItem(String title, LocalDate date, Status status){
         this(title,date);
         this.status = status;
         this.history = new ArrayList<>();
-        EventLog eventLog = new EventLog("Item created: " + viewInfo());
-        history.add(eventLog);
+        history.add(new EventLog("Item created: " + viewInfo()));
     }
-
+    protected Status getInitialStatus(){
+     return  Status.OPEN;
+    }
     public Status getStatus() {
         return status;
     }
@@ -30,22 +32,20 @@ public class BoardItem {
         return title;
     }
     public void setTitle(String title) {
-        if (title.length() < 5 || title.length() > 30) {
+        if (title.length() < MIN_TITLE_LENGTH || title.length() > MAX_TITLE_LENGTH) {
             throw new IllegalArgumentException("Please provide a title with length between 5 and 30 chars");
         }
-        history.add(new EventLog("Title changed from " + this.title + " to " + title));
+        history.add(new EventLog(String.format("Title changed from %s to %s",this.title,title)));
         this.title = title;
     }
-
     public LocalDate getDueDate() {
         return dueDate;
     }
-
     public void setDueDate(LocalDate dueDate) {
         if (dueDate.isBefore(LocalDate.now())){
             throw new IllegalArgumentException("Please provide a value that it is not in the past");
         }
-        history.add(new EventLog("DueDate changed from " + this.dueDate + " to " + dueDate));
+        history.add(new EventLog(String.format("DueDate changed from %s to %s",this.dueDate,dueDate)));
         this.dueDate = dueDate;
     }
 
@@ -75,7 +75,7 @@ public class BoardItem {
                 status = "Verified";
                 break;
         }
-        return "'" +title + "', ["+ status + " | "+ date+"]";
+        return String.format("'%s', [%s | %s]",title,status,date);
     }
     public void revertStatus(){
         if (status.equals(Status.OPEN)){
