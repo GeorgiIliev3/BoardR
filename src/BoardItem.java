@@ -1,12 +1,13 @@
+import enums.Status;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class BoardItem {
+public abstract class BoardItem {
     public static final int MIN_TITLE_LENGTH = 5;
     public static final int MAX_TITLE_LENGTH = 30;
     private String title;
     private LocalDate dueDate;
-    private Status status;
+    protected Status status;
     protected ArrayList<EventLog>history;
 
     public BoardItem (String title, LocalDate date){
@@ -33,7 +34,7 @@ public class BoardItem {
     }
     public void setTitle(String title) {
         if (title.length() < MIN_TITLE_LENGTH || title.length() > MAX_TITLE_LENGTH) {
-            throw new IllegalArgumentException("Please provide a title with length between 5 and 30 chars");
+            throw new IllegalArgumentException(String.format("Please provide a title with length between %s and %s chars",MIN_TITLE_LENGTH,MAX_TITLE_LENGTH));
         }
         history.add(new EventLog(String.format("Title changed from %s to %s",this.title,title)));
         this.title = title;
@@ -49,72 +50,24 @@ public class BoardItem {
         this.dueDate = dueDate;
     }
 
-    public void displayHistory(){
-        for (EventLog element:history) {
-            System.out.println(element.viewInfo());
-        }
-    }
+    public String getHistory() {
+        StringBuilder builder = new StringBuilder();
 
+        for (EventLog event : history) {
+            builder.append(event.viewInfo()).append(System.lineSeparator());
+        }
+
+        return builder.toString();
+    }
+    public void displayHistory(){
+        System.out.println(getHistory());
+    }
     public String viewInfo(){
-        String status = "";
-        String date = String.valueOf(this.dueDate);
-        switch (String.valueOf(this.status)){
-            case "OPEN":
-                status = "Open";
-                break;
-            case "TO_DO":
-                status = "To Do";
-                break;
-            case "IN_PROGRESS":
-                status = "In progress";
-                break;
-            case "DONE":
-                status = "Done";
-                break;
-            case "VERIFIED":
-                status = "Verified";
-                break;
-        }
-        return String.format("'%s', [%s | %s]",title,status,date);
+        String status = this.status.toString(getStatus());
+        return String.format("'%s', [%s | %s]",title,status,getDueDate());
     }
-    public void revertStatus(){
-        if (status.equals(Status.OPEN)){
-            history.add(new EventLog("Can't revert, already at Open"));
-            return;
-        }
-        if (status.equals(Status.TO_DO)){
-            status = Status.OPEN;
-            history.add(new EventLog("Status changed from To Do to Open"));
-        } else if(status.equals(Status.IN_PROGRESS)) {
-            status = Status.TO_DO;
-            history.add(new EventLog("Status changed from In progress to To Do"));
-        } else if (status.equals(Status.DONE)) {
-            status = Status.IN_PROGRESS;
-            history.add(new EventLog("Status changed from Done to In progress"));
-        } else if (status.equals(Status.VERIFIED)) {
-            status = Status.DONE;
-            history.add(new EventLog("Status changed from Verified to Done"));
-        }
-    }
-    public void advanceStatus(){
-        if (status.equals(Status.VERIFIED)){
-            history.add(new EventLog("Can't advance, already at Verified"));
-            return;
-        }
-        if (status.equals(Status.OPEN)){
-            status = Status.TO_DO;
-            history.add(new EventLog("Status changed from Open to To Do"));
-        } else if(status.equals(Status.TO_DO)) {
-            status = Status.IN_PROGRESS;
-            history.add(new EventLog("Status changed from To Do to In progress"));
-        } else if (status.equals(Status.IN_PROGRESS)) {
-            status = Status.DONE;
-            history.add(new EventLog("Status changed from In progress to Done"));
-        } else if (status.equals(Status.DONE)) {
-            status = Status.VERIFIED;
-            history.add(new EventLog("Status changed from Done to Verified"));
-        }
-    }
+    public abstract void revertStatus();
+    public abstract void advanceStatus();
 
 }
 

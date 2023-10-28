@@ -1,3 +1,5 @@
+import loggers.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,5 +18,15 @@ class Board {
     }
     public int totalItems(){
         return items.size();
+    }
+    public void displayHistory(Logger logger) {
+        for (BoardItem item : items) {
+            logger.log(item.getHistory());
+        }
+    }
+    public void displayHistory(){
+        for (BoardItem item: items){
+            item.displayHistory();
+        }
     }
 }
